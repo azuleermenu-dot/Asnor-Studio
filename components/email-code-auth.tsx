@@ -1,0 +1,23 @@
+"use client";
+import {useActionState,useState} from "react";
+import Link from "next/link";
+import {sendEmailCode,verifyEmailCode,type EmailCodeState} from "@/app/(auth)/actions";
+const initial:EmailCodeState={};
+export function EmailCodeAuth({mode}:{mode:"login"|"signup"}){
+ const[sent,sendAction,sending]=useActionState(sendEmailCode,initial);
+ const[verified,verifyAction,verifying]=useActionState(verifyEmailCode,initial);
+ const[email,setEmail]=useState("");
+ const stage=sent.stage==="verify"||verified.stage==="verify";
+ const target=verified.email||sent.email||email;
+ const error=verified.error||(!verified.stage?sent.error:undefined);
+ return <main className="relative grid min-h-screen place-items-center overflow-hidden px-4 py-10 sm:px-6">
+ <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(139,92,246,.16),transparent_55%)]"/>
+ <div className="relative w-full max-w-md">
+ <Link href="/" className="mb-8 inline-flex items-center gap-3 text-sm font-semibold tracking-wide"><span className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-violet-300 to-indigo-500 text-lg font-black text-zinc-950">A</span><span>ASNOR <span className="text-zinc-500">STUDIO</span></span></Link>
+ <section className="rounded-3xl border border-white/10 bg-zinc-900/80 p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8">
+ <div className="mb-7"><p className="mb-3 text-xs font-semibold uppercase tracking-[.22em] text-violet-300">{stage?"Email verification":mode==="signup"?"Start creating":"Your workspace"}</p><h1 className="text-3xl font-semibold tracking-tight text-white">{stage?"Enter your code":mode==="signup"?"Create your account":"Welcome back"}</h1><p className="mt-2 text-sm leading-6 text-zinc-400">{stage?`Enter the 6-digit code sent to ${target}.`:"Sign in securely with a one-time code sent to your email. No password needed."}</p></div>
+ {!stage?<form action={sendAction} className="space-y-4"><input type="hidden" name="intent" value={mode}/><label className="block text-sm font-medium text-zinc-300">Email address<input required type="email" name="email" autoComplete="email" inputMode="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3.5 text-base text-white outline-none transition placeholder:text-zinc-600 focus:border-violet-400 focus:ring-4 focus:ring-violet-500/10"/></label>{error&&<p role="alert" className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">{error}</p>}<button disabled={sending} className="w-full rounded-xl bg-white px-4 py-3.5 font-semibold text-zinc-950 transition hover:bg-violet-100 disabled:opacity-60">{sending?"Sending code…":"Send email code →"}</button></form>
+ :<form action={verifyAction} className="space-y-4"><input type="hidden" name="email" value={target}/><label className="block text-sm font-medium text-zinc-300">6-digit code<input required name="token" type="text" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} placeholder="000000" className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-4 text-center text-2xl tracking-[.45em] text-white outline-none transition placeholder:text-zinc-700 focus:border-violet-400 focus:ring-4 focus:ring-violet-500/10"/></label>{error&&<p role="alert" className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">{error}</p>}{sent.success&&!verified.error&&<p role="status" className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">{sent.success}</p>}<button disabled={verifying} className="w-full rounded-xl bg-white px-4 py-3.5 font-semibold text-zinc-950 transition hover:bg-violet-100 disabled:opacity-60">{verifying?"Verifying…":"Verify and sign in →"}</button><button type="button" onClick={()=>window.location.reload()} className="w-full rounded-xl border border-white/10 px-4 py-3 text-sm text-zinc-300 hover:bg-white/5">Use a different email</button></form>}
+ <p className="mt-6 text-center text-sm text-zinc-400">{mode==="signup"?<>Already have an account? <Link className="font-medium text-violet-300" href="/login">Sign in</Link></>:<>New to Asnor Studio? <Link className="font-medium text-violet-300" href="/signup">Create an account</Link></>}</p>
+ </section><p className="mt-5 text-center text-xs text-zinc-600"><Link href="/" className="hover:text-zinc-400">← Back to Asnor Studio</Link></p></div></main>;
+}
