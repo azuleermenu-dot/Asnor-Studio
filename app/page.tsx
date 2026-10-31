@@ -1,3 +1,135 @@
 import Link from "next/link";
-const features=[["01","Start with a canvas","Begin with a clean project or starter layout. Your website, your direction."],["02","Design by doing","Drag in sections, edit content, and shape every detail with visual controls."],["03","Publish with confidence","Preview every screen and publish when your site is ready."]];
-export default function HomePage(){return <main className="min-h-screen overflow-hidden"><div className="studio-grid pointer-events-none absolute inset-x-0 top-0 h-[720px]"/><header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10"><Link href="/" className="flex items-center gap-3 font-semibold tracking-tight"><span className="grid size-9 place-items-center rounded-xl bg-white text-sm font-black text-zinc-950">A</span><span>asnor<span className="text-zinc-500"> studio</span></span></Link><nav className="flex items-center gap-3 text-sm"><Link href="/login" className="rounded-full px-4 py-2.5 text-zinc-300 hover:text-white">Log in</Link><Link href="/signup" className="rounded-full bg-white px-4 py-2.5 font-medium text-zinc-950 hover:bg-zinc-200">Get started ↗</Link></nav></header><section className="relative mx-auto grid max-w-7xl items-center gap-14 px-6 pb-24 pt-20 lg:grid-cols-[1.05fr_.95fr] lg:px-10 lg:pb-32 lg:pt-28"><div><div className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3.5 py-2 text-xs text-zinc-300"><span className="size-1.5 rounded-full bg-violet-400"/> A creative studio for everyone</div><h1 className="max-w-3xl text-5xl font-semibold leading-[1.04] tracking-[-.055em] sm:text-6xl lg:text-7xl">Your ideas.<br/><span className="bg-gradient-to-r from-violet-300 via-fuchsia-200 to-sky-200 bg-clip-text text-transparent">Your website.</span></h1><p className="mt-7 max-w-xl text-lg leading-8 text-zinc-400">Create beautiful websites by moving things around, shaping your style, and making it yours. No coding experience required. No AI-built websites.</p><div className="mt-9 flex flex-wrap gap-3"><Link href="/signup" className="rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-zinc-950 hover:bg-zinc-200">Create your first site →</Link><a href="#how-it-works" className="rounded-full border border-white/15 px-6 py-3.5 text-sm text-zinc-300 hover:border-white/30 hover:text-white">Explore the studio</a></div><p className="mt-5 text-xs text-zinc-600">Built for beginners, creators, and small businesses.</p></div><div className="relative mx-auto w-full max-w-xl"><div className="absolute -inset-8 rounded-[40px] bg-violet-500/10 blur-3xl"/><div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#111114] shadow-2xl shadow-black/50"><div className="flex h-12 items-center justify-between border-b border-white/10 px-4"><div className="flex gap-1.5"><i className="size-2.5 rounded-full bg-zinc-700"/><i className="size-2.5 rounded-full bg-zinc-700"/><i className="size-2.5 rounded-full bg-zinc-700"/></div><span className="text-[10px] text-zinc-500">Untitled website · Preview</span><span className="rounded-md bg-violet-400/15 px-2 py-1 text-[10px] text-violet-200">Publish ↗</span></div><div className="grid min-h-[330px] grid-cols-[88px_1fr] sm:grid-cols-[112px_1fr]"><aside className="border-r border-white/10 p-3"><p className="mb-3 text-[9px] uppercase tracking-widest text-zinc-600">Elements</p>{["Section","Heading","Text","Image","Button"].map(x=><div key={x} className="mb-2 rounded-md border border-white/[.07] bg-white/[.025] px-2 py-2 text-[10px] text-zinc-400">{x}</div>)}</aside><div className="p-3 sm:p-4"><div className="flex h-full min-h-[290px] flex-col overflow-hidden rounded-lg bg-[#e9e6df] text-[#20201e]"><div className="flex items-center justify-between px-4 py-3 text-[9px] font-semibold"><span>STUDIO / CO.</span><span>Work　 About　 Contact</span></div><div className="flex flex-1 flex-col justify-center px-5 pb-7 pt-8 sm:px-8"><p className="text-[9px] uppercase tracking-[.25em] text-[#77756e]">Independent creative studio</p><h2 className="mt-3 max-w-xs text-3xl font-semibold leading-[.98] tracking-[-.06em] sm:text-4xl">Make room<br/>for good ideas.</h2><p className="mt-4 max-w-[220px] text-[10px] leading-4 text-[#65635d]">Thoughtful design for people building something meaningful.</p><span className="mt-5 w-fit rounded-full bg-[#20201e] px-3 py-2 text-[9px] text-white">Explore our work ↗</span></div><div className="grid grid-cols-3 gap-1 px-2 pb-2"><div className="h-12 rounded-sm bg-[#c8b8a4]"/><div className="h-12 rounded-sm bg-[#a8aaa1]"/><div className="h-12 rounded-sm bg-[#d2cfc6]"/></div></div></div><div className="flex items-center justify-between border-t border-white/10 px-4 py-3 text-[10px] text-zinc-500"><span>Desktop preview</span><span>100%　⌄</span></div></div><div className="absolute -bottom-5 -left-5 rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 shadow-xl"><p className="text-[10px] text-zinc-500">Your canvas</p><p className="mt-1 text-xs font-medium">Made by you, not generated.</p></div></div></section><section id="how-it-works" className="border-t border-white/[.07] bg-white/[.015]"><div className="mx-auto max-w-7xl px-6 py-20 lg:px-10 lg:py-24"><div className="mb-12 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-xs font-medium uppercase tracking-[.2em] text-violet-300">A simpler way to create</p><h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">The creative process, made simple.</h2></div><p className="max-w-md text-sm leading-6 text-zinc-500">Everything you need to bring a website to life, with room to grow as your ideas do.</p></div><div className="grid gap-4 md:grid-cols-3">{features.map(([n,t,d])=><article key={n} className="rounded-2xl border border-white/[.08] bg-white/[.025] p-6 transition hover:border-violet-300/30"><span className="text-xs text-violet-300">{n}</span><h3 className="mt-7 text-lg font-medium">{t}</h3><p className="mt-3 text-sm leading-6 text-zinc-500">{d}</p></article>)}</div></div></section><footer className="mx-auto flex max-w-7xl flex-col gap-3 px-6 py-8 text-xs text-zinc-600 sm:flex-row sm:justify-between lg:px-10"><span>© {new Date().getFullYear()} Asnor Studio</span><span>Made for people with ideas.</span></footer></main>}
+
+const features = [
+  {
+    number: "01",
+    title: "Start with a canvas",
+    description: "Begin with a clean project or starter layout. Your website, your direction.",
+  },
+  {
+    number: "02",
+    title: "Design by doing",
+    description: "Drag in sections, edit content, and shape every detail with visual controls.",
+  },
+  {
+    number: "03",
+    title: "Publish with confidence",
+    description: "Preview every screen and publish when your site is ready.",
+  },
+];
+
+export default function HomePage() {
+  return (
+    <main className="min-h-screen overflow-hidden">
+      <div className="studio-grid pointer-events-none absolute inset-x-0 top-0 h-[720px]" />
+
+      <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10">
+        <Link href="/" className="flex items-center gap-3 font-semibold tracking-tight">
+          <span className="grid size-9 place-items-center rounded-xl bg-white text-sm font-black text-zinc-950">A</span>
+          <span>asnor<span className="text-zinc-500"> studio</span></span>
+        </Link>
+        <nav className="flex items-center gap-3 text-sm">
+          <Link href="/login" className="rounded-full px-4 py-2.5 text-zinc-300 hover:text-white">Log in</Link>
+          <Link href="/signup" className="rounded-full bg-white px-4 py-2.5 font-medium text-zinc-950 hover:bg-zinc-200">Get started ↗</Link>
+        </nav>
+      </header>
+
+      <section className="relative mx-auto grid max-w-7xl items-center gap-14 px-6 pb-24 pt-20 lg:grid-cols-[1.05fr_.95fr] lg:px-10 lg:pb-32 lg:pt-28">
+        <div>
+          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3.5 py-2 text-xs text-zinc-300">
+            <span className="size-1.5 rounded-full bg-violet-400" />
+            A creative studio for everyone
+          </div>
+          <h1 className="max-w-3xl text-5xl font-semibold leading-[1.04] tracking-[-.055em] sm:text-6xl lg:text-7xl">
+            Your ideas.<br />
+            <span className="bg-gradient-to-r from-violet-300 via-fuchsia-200 to-sky-200 bg-clip-text text-transparent">Your website.</span>
+          </h1>
+          <p className="mt-7 max-w-xl text-lg leading-8 text-zinc-400">
+            Create beautiful websites by moving things around, shaping your style, and making it yours. No coding experience required. No AI-built websites.
+          </p>
+          <div className="mt-9 flex flex-wrap gap-3">
+            <Link href="/signup" className="rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-zinc-950 hover:bg-zinc-200">Create your first site →</Link>
+            <a href="#how-it-works" className="rounded-full border border-white/15 px-6 py-3.5 text-sm text-zinc-300 hover:border-white/30 hover:text-white">Explore the studio</a>
+          </div>
+          <p className="mt-5 text-xs text-zinc-600">Built for beginners, creators, and small businesses.</p>
+        </div>
+
+        <div className="relative mx-auto w-full max-w-xl">
+          <div className="absolute -inset-8 rounded-[40px] bg-violet-500/10 blur-3xl" />
+          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#111114] shadow-2xl shadow-black/50">
+            <div className="flex h-12 items-center justify-between border-b border-white/10 px-4">
+              <div className="flex gap-1.5">
+                <span className="size-2.5 rounded-full bg-zinc-700" />
+                <span className="size-2.5 rounded-full bg-zinc-700" />
+                <span className="size-2.5 rounded-full bg-zinc-700" />
+              </div>
+              <span className="text-[10px] text-zinc-500">Untitled website · Preview</span>
+              <span className="rounded-md bg-violet-400/15 px-2 py-1 text-[10px] text-violet-200">Publish ↗</span>
+            </div>
+
+            <div className="grid min-h-[330px] grid-cols-[88px_1fr] sm:grid-cols-[112px_1fr]">
+              <aside className="border-r border-white/10 p-3">
+                <p className="mb-3 text-[9px] uppercase tracking-widest text-zinc-600">Elements</p>
+                {["Section", "Heading", "Text", "Image", "Button"].map((item) => (
+                  <div key={item} className="mb-2 rounded-md border border-white/[.07] bg-white/[.025] px-2 py-2 text-[10px] text-zinc-400">{item}</div>
+                ))}
+              </aside>
+              <div className="p-3 sm:p-4">
+                <div className="flex h-full min-h-[290px] flex-col overflow-hidden rounded-lg bg-[#e9e6df] text-[#20201e]">
+                  <div className="flex items-center justify-between px-4 py-3 text-[9px] font-semibold">
+                    <span>STUDIO / CO.</span>
+                    <span>Work · About · Contact</span>
+                  </div>
+                  <div className="flex flex-1 flex-col justify-center px-5 pb-7 pt-8 sm:px-8">
+                    <p className="text-[9px] uppercase tracking-[.25em] text-[#77756e]">Independent creative studio</p>
+                    <h2 className="mt-3 max-w-xs text-3xl font-semibold leading-[.98] tracking-[-.06em] sm:text-4xl">Make room<br />for good ideas.</h2>
+                    <p className="mt-4 max-w-[220px] text-[10px] leading-4 text-[#65635d]">Thoughtful design for people building something meaningful.</p>
+                    <span className="mt-5 w-fit rounded-full bg-[#20201e] px-3 py-2 text-[9px] text-white">Explore our work ↗</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-1 px-2 pb-2">
+                    <div className="h-12 rounded-sm bg-[#c8b8a4]" />
+                    <div className="h-12 rounded-sm bg-[#a8aaa1]" />
+                    <div className="h-12 rounded-sm bg-[#d2cfc6]" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between border-t border-white/10 px-4 py-3 text-[10px] text-zinc-500">
+              <span>Desktop preview</span><span>100% ·</span>
+            </div>
+          </div>
+          <div className="absolute -bottom-5 -left-5 rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 shadow-xl">
+            <p className="text-[10px] text-zinc-500">Your canvas</p>
+            <p className="mt-1 text-xs font-medium">Made by you, not generated.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="how-it-works" className="border-t border-white/[.07] bg-white/[.015]">
+        <div className="mx-auto max-w-7xl px-6 py-20 lg:px-10 lg:py-24">
+          <div className="mb-12 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[.2em] text-violet-300">A simpler way to create</p>
+              <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">The creative process, made simple.</h2>
+            </div>
+            <p className="max-w-md text-sm leading-6 text-zinc-500">Everything you need to bring a website to life, with room to grow as your ideas do.</p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {features.map((feature) => (
+              <article key={feature.number} className="rounded-2xl border border-white/[.08] bg-white/[.025] p-6 transition hover:border-violet-300/30">
+                <span className="text-xs text-violet-300">{feature.number}</span>
+                <h3 className="mt-7 text-lg font-medium">{feature.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-zinc-500">{feature.description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <footer className="mx-auto flex max-w-7xl flex-col gap-3 px-6 py-8 text-xs text-zinc-600 sm:flex-row sm:justify-between lg:px-10">
+        <span>© {new Date().getFullYear()} Asnor Studio</span>
+        <span>Made for people with ideas.</span>
+      </footer>
+    </main>
+  );
+}
