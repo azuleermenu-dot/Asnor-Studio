@@ -3,56 +3,58 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-export type AuthState = { error?: string; success?: string };
+export type EmailCodeState = {
+  stage?: "verify";
+  email?: string;
+  error?: string;
+  success?: string;
+};
 
-function credentials(formData: FormData) {
-  return { email: String(formData.get("email") ?? "").trim().toLowerCase(), password: String(formData.get("password") ?? "") };
-}
-
-export async function signIn(_state: AuthState, formData: FormData): Promise<AuthState> {
-  const { email, password } = credentials(formData);
-  if (!email || !password) return { error: "Enter your email and password." };
-  try {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return { error: error.message.toLowerCase().includes("email not confirmed") ? "Please verify your email before signing in." : "That email and password don’t match. Try again." };
-  } catch {
-    return { error: "Sign-in is temporarily unavailable. Please try again in a moment." };
+export async function sendEmailCode(_state: EmailCodeState, formData: FormData): Promise<EmailCodeState> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const intent = String(formData.get("intent") ?? "login");
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { error: "Enter a valid email address." };
   }
-  redirect("/dashboard");
-}
 
-export async function signUp(_state: AuthState, formData: FormData): Promise<AuthState> {
-  const { email, password } = credentials(formData);
-  const confirmPassword = String(formData.get("confirmPassword") ?? "");
-  if (!email) return { error: "Enter a valid email address." };
-  if (password.length < 8) return { error: "Use a password with at least 8 characters." };
-  if (password !== confirmPassword) return { error: "Your passwords don’t match." };
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/auth/callback` } });
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: intent === "signup",
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/auth/callback`,
+      },
+    });
     if (error) {
       const message = error.message.toLowerCase();
-      if (message.includes("already") || message.includes("registered")) return { error: "An account may already exist with this email. Try signing in instead." };
-      return { error: "We couldn’t create your account. Please check your details and try again." };
+      if (message.includes("rate") || message.includes("too many")) {
+        return { error: "Please wait a little before requesting another code." };
+      }
+      if (intent === "login" && (message.includes("not found") || message.includes("signups not allowed"))) {
+        return { error: "No account was found for that email. Create an account first." };
+      }
+      return { error: "We couldn’t send your code. Check the email and try again." };
     }
-    if (data.session) redirect("/dashboard");
-    return { success: "Account created. Check your inbox for the verification link, then sign in." };
-  } catch (error) {
-    if (error instanceof Error && error.message === "NEXT_REDIRECT") throw error;
-    return { error: "Sign-up is temporarily unavailable. Please try again in a moment." };
+    return { stage: "verify", email, success: "We sent a 6-digit sign-in code to your email. Check your inbox and spam folder." };
+  } catch {
+    return { error: "Email verification is temporarily unavailable. Please try again." };
   }
 }
 
-export async function resetPassword(_state: AuthState, formData: FormData): Promise<AuthState> {
+export async function verifyEmailCode(_state: EmailCodeState, formData: FormData): Promise<EmailCodeState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  if (!email) return { error: "Enter your email address first." };
+  const token = String(formData.get("token") ?? "").replace(/\s/g, "");
+  if (!email || !/^\d{6}$/.test(token)) {
+    return { stage: "verify", email, error: "Enter the 6-digit code from your email." };
+  }
+
   try {
     const supabase = await createClient();
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/auth/callback?next=/login` });
-    if (error) return { error: "We couldn’t send a reset link. Please try again." };
-    return { success: "If an account exists for that email, a password reset link is on its way." };
+    const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
+    if (error) return { stage: "verify", email, error: "That code is invalid or expired. Request a new one and try again." };
   } catch {
-    return { error: "Password reset is temporarily unavailable. Please try again." };
+    return { stage: "verify", email, error: "We couldn’t verify the code. Please try again." };
   }
+  redirect("/dashboard");
 }
