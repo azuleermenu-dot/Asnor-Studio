@@ -1,36 +1,46 @@
 # Asnor Studio
 
-A beginner-friendly, visual no-code website builder. Users build websites with templates, drag-and-drop components, and design controls—no AI website generation.
+A beginner-friendly visual no-code website builder. Users create websites with templates, drag-and-drop components, and design controls—without AI-generated websites.
 
-## Project status
+## Current status — Phase 1 foundation
 
-Phase 1 foundation is being initialized. The current scaffold is intentionally small; authentication and project persistence will be wired to Supabase when environment credentials are configured.
+Implemented in this repository:
+- Next.js App Router + TypeScript + Tailwind CSS scaffold
+- Responsive studio landing page
+- Supabase SSR client setup and auth flows (sign up, sign in, callback, sign out)
+- Authenticated dashboard and project creation flow
+- Initial PostgreSQL projects schema with owner-based Row Level Security
+- Architecture notes and environment template
 
-## Planned stack
-
-- Next.js App Router + React + TypeScript
-- Tailwind CSS
-- Supabase Auth, PostgreSQL, and Storage
-- GrapesJS for the visual editor (Phase 2)
-- Vercel for the studio app
-- Separate static hosting/CDN for published websites (publishing phase)
+The GrapesJS editor, autosave, previews, asset uploads, and publishing pipeline are planned for later phases and are not implemented yet.
 
 ## Local development
 
-1. Install Node.js 20.9+.
+1. Use Node.js 20.9 or newer.
 2. Install dependencies: `npm install`
-3. Copy `.env.example` to `.env.local` and add Supabase project values.
-4. Start the app: `npm run dev`
+3. Copy `.env.example` to `.env.local`.
+4. Add your Supabase project URL and anon/publishable key.
+5. Apply `supabase/migrations/0001_initial_schema.sql` in the Supabase SQL editor.
+6. In Supabase Auth settings, configure the local/site URL and redirect URL `http://localhost:3000/auth/callback`.
+7. Run `npm run dev`.
 
-## Security principles
+## Environment variables
 
-- Enforce user ownership server-side and with Supabase RLS.
-- Never expose the Supabase service-role key in browser code.
-- Treat user-created website content as untrusted.
-- Published sites must be isolated from the studio application.
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_SITE_URL`
 
-## Current MVP sequence
+Never add a Supabase service-role key to client-visible environment variables.
 
-Register/sign in → create project → visually edit → save → preview → publish.
+## Security notes
 
-See `docs/ARCHITECTURE.md` for the initial system architecture and implementation plan.
+- Project ownership is enforced by RLS.
+- Server actions derive the owner from the authenticated session.
+- User-created website content is untrusted.
+- Published websites must be isolated from the studio app origin.
+
+## MVP sequence
+
+Register/sign in → create project → visual edit → save → preview → publish.
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the system design and phases.
