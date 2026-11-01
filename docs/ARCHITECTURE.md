@@ -1,50 +1,70 @@
 # Asnor Studio Architecture
 
 ## Product principle
-A visual drag-and-drop website builder. Users create sites with templates and design controls; no AI website generation.
+
+A visual drag-and-drop website builder. Users create and style websites themselves with templates and editable components. Website generation must not rely on AI.
 
 ## System overview
+
 ```mermaid
 flowchart TD
  User --> Studio[Next.js Studio App]
  Studio --> Auth[Supabase Auth]
- Studio --> API[Server Actions / Route Handlers]
- API --> DB[(Supabase PostgreSQL)]
- API --> Storage[Supabase Storage]
- Studio --> Editor[GrapesJS Visual Editor - Phase 2]
- Editor --> Save[Project persistence]
- Save --> DB
- Save --> Publish[Publishing service - later phase]
- Publish --> Validate[Validate and sanitize content]
+ Studio --> Middleware[Session refresh middleware]
+ Studio --> Routes[Server Actions and Route Handlers]
+ Routes --> DB[(Supabase PostgreSQL)]
+ Routes --> Storage[Supabase Storage - future]
+ Studio --> Editor[GrapesJS visual editor]
+ Editor --> Autosave[Authenticated project API]
+ Autosave --> DB
+ DB --> RLS[Owner-based Row Level Security]
+ Editor --> Preview[Editor device preview]
+ Preview --> Publish[Publishing service - future]
+ Publish --> Validate[Validate and sanitize untrusted content]
  Validate --> Static[Static HTML/CSS output]
- Static --> CDN[Static hosting + CDN]
+ Static --> CDN[Isolated static hosting + CDN]
  CDN --> Visitors[Public visitors]
 ```
 
-## Phase 1
+## Current foundation
+
 - Next.js App Router, React, TypeScript, Tailwind CSS.
-- Supabase Auth with SSR cookie handling.
-- PostgreSQL projects table protected by RLS.
-- Landing page, signup/signin, dashboard, project creation.
-- Public URL + anon/publishable key only; never expose service-role keys.
+- Supabase Auth with Google OAuth and email one-time-code sign-in.
+- SSR cookie refresh through middleware and server client helpers.
+- Session cookie by default; optional 30-day persistent session preference.
+- Authenticated dashboard and project creation.
+- PostgreSQL `projects` table with owner-based RLS.
+- GrapesJS early editor with starter blocks, device previews, and server API autosave.
+- Baseline browser security headers.
+- CI workflow for lint, TypeScript, and production build.
+
+## Request and authorization rules
+
+1. Resolve the current user on the server using Supabase Auth.
+2. Derive `owner_id` from the verified session. Never accept the owner from a client request.
+3. Restrict updates by both project ID and authenticated owner.
+4. Keep RLS enabled and explicit for the `authenticated` database role.
+5. Require `USING` and `WITH CHECK` ownership predicates on project updates.
+6. Keep service-role credentials out of browser and `NEXT_PUBLIC_*` environments.
+7. Apply input shape and payload-size validation to autosave requests.
+8. Treat all user-created site content as untrusted.
+
+## Publishing isolation
+
+The Studio application and public websites must remain separate security origins. Never render saved user HTML as a page on the Studio origin. Before publishing, introduce a validation and sanitization pipeline, reject scripts and unsafe URLs, and serve generated sites on isolated domains or subdomains with appropriate response headers. Publishing infrastructure has not yet been implemented.
 
 ## Planned data model
-- projects: owner, name, timestamps (created in Phase 1)
-- pages: project, slug, metadata, editor state
-- assets: owner/project, storage metadata
-- publications: version, URL, status
-- project_settings: design tokens and site settings
 
-## Security
-- Authenticate on server-side routes/actions.
-- Derive owner identity from authenticated session, never client-supplied IDs.
-- RLS is the database access boundary.
-- Treat website content as untrusted; published content must not execute on studio origin.
-- Upload policies, limits, and MIME/content validation must exist before asset uploads ship.
+- `projects`: owner, name, timestamps, editor state.
+- `pages`: project, slug, metadata, editor state.
+- `assets`: owner/project, storage metadata.
+- `publications`: version, URL, status, and publish timestamp.
+- `project_settings`: design tokens and site-level settings.
 
-## Phases
-1. Foundation: landing, auth, dashboard, projects, RLS.
-2. Editor: GrapesJS, controls, templates, responsive preview, autosave.
-3. Publishing: validation, static output, public URLs, republish.
-4. Production: tests, accessibility, monitoring, backups, security review.
+## Development phases
+
+1. Foundation: authentication, sessions, project ownership, database security, server APIs, CI.
+2. Editor: reliable editing, design controls, templates, multi-page support, responsive preview, autosave/recovery.
+3. Publishing: validation, static output, isolated public URLs, versioned republishing.
+4. Production: security review, accessibility, performance, monitoring, backup/restore, end-to-end testing.
 5. Advanced: custom domains, collaboration, forms, analytics, marketplace.

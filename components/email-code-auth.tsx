@@ -9,7 +9,7 @@ export function EmailCodeAuth({mode}:{mode:"login"|"signup"}){
  const[email,setEmail]=useState("");
  const[remaining,setRemaining]=useState(0);
  useEffect(()=>{setRemaining(sent.retryAfterSeconds??0);},[sent.retryAfterSeconds]);
- useEffect(()=>{if(remaining<=0)return;const timer=window.setInterval(()=>setRemaining(v=>Math.max(0,v-1)),1000);return()=>window.clearInterval(timer);},[remaining>0]);
+ useEffect(()=>{const timer=window.setInterval(()=>setRemaining(v=>Math.max(0,v-1)),1000);return()=>window.clearInterval(timer);},[]);
  const formatRemaining=(seconds:number)=>`${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,"0")}`;
  const stage=sent.stage==="verify"||verified.stage==="verify";
  const target=verified.email||sent.email||email;
