@@ -1,5 +1,6 @@
 "use server";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://asnor-studio-mvp-asnor-ali.vercel.app").replace(/\/$/, "");
@@ -11,6 +12,9 @@ export type AuthState = EmailCodeState;
 export async function sendEmailCode(_state: EmailCodeState, formData: FormData): Promise<EmailCodeState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const intent = String(formData.get("intent") ?? "login");
+  const remember = formData.get("remember") === "on";
+  const cookieStore = await cookies();
+  cookieStore.set("asnor-remember-session", remember ? "1" : "0", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", ...(remember ? { maxAge: 60 * 60 * 24 * 30 } : {}) });
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "Enter a valid email address." };
   try {
     const supabase = await createClient();
