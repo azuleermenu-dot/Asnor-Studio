@@ -13,6 +13,7 @@ type EditorApi = {
   setDevice(name: string): void;
   addComponents(content: object | string): unknown;
   runCommand(command: string): void;
+  stopCommand(command: string): void;
   getSelected(): EditorComponent | null;
   destroy(): void;
   on(event: string, callback: (...args: unknown[]) => void): void;
@@ -139,7 +140,7 @@ export default function StudioEditor({ projectId, initialData }: Props) {
     } finally { setUploading(false); }
   }
 
-  const togglePanel = (panel: Exclude<MobilePanel, null>) => setMobilePanel((current) => current === panel ? null : panel);
+  const togglePanel = (panel: Exclude<MobilePanel, null>) => setMobilePanel((current) => current === panel ? null : panel);\n\n  function togglePreview() {\n    const next = !preview;\n    if (next) editorRef.current?.runCommand("core:preview");\n    else editorRef.current?.stopCommand("core:preview");\n    setPreview(next);\n    setMobilePanel(null);\n  }
 
   return (
     <div className={`studio-shell ${preview ? "studio-preview-mode" : ""} ${mobilePanel ? "studio-panel-open" : ""}`}>
@@ -167,7 +168,7 @@ export default function StudioEditor({ projectId, initialData }: Props) {
           <div className="studio-actions">
             <button type="button" onClick={() => editorRef.current?.runCommand("core:undo")} aria-label="Undo" title="Undo">↶</button>
             <button type="button" onClick={() => editorRef.current?.runCommand("core:redo")} aria-label="Redo" title="Redo">↷</button>
-            <button type="button" className={preview ? "active" : ""} onClick={() => { setPreview((value) => !value); setMobilePanel(null); }} aria-pressed={preview}>{preview ? "Edit" : "Preview"}</button>
+            <button type="button" className={preview ? "active" : ""} onClick={togglePreview} aria-pressed={preview}>{preview ? "Edit" : "Preview"}</button>
           </div>
           <span className="studio-save-status" role="status" aria-live="polite">{status}</span>
         </div>
@@ -178,7 +179,7 @@ export default function StudioEditor({ projectId, initialData }: Props) {
           <button type="button" aria-pressed={mobilePanel === "blocks"} className={mobilePanel === "blocks" ? "active" : ""} onClick={() => togglePanel("blocks")}><span aria-hidden="true">＋</span> Add</button>
           <button type="button" aria-pressed={mobilePanel === "design"} className={mobilePanel === "design" ? "active" : ""} onClick={() => togglePanel("design")}><span aria-hidden="true">✎</span> Design</button>
           <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading}><span aria-hidden="true">▧</span> Image</button>
-          <button type="button" onClick={() => { setPreview((value) => !value); setMobilePanel(null); }}><span aria-hidden="true">◉</span> {preview ? "Edit" : "Preview"}</button>
+          <button type="button" onClick={togglePreview}><span aria-hidden="true">◉</span> {preview ? "Edit" : "Preview"}</button>
         </nav>
       </section>
     </div>
