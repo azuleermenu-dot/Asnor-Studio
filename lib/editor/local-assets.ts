@@ -2,9 +2,10 @@ const DB_NAME = "asnor-studio-local-assets";
 const DB_VERSION = 1;
 const STORE_NAME = "assets";
 const REF_PREFIX = "asnor-local-asset:";
-const MAX_CACHED_REFERENCES = 250;
+const MAX_CACHED_DATA_URL_CHARS = 24 * 1024 * 1024;
 
 type StoredAsset = { key: string; dataUrl: string; updatedAt: number };
+type CachedReference = { projectId: string; reference: string };
 
 function openAssetDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -35,6 +36,7 @@ function openAssetDb(): Promise<IDBDatabase> {
   });
 }
 
+/** Resolve only after the IndexedDB transaction has committed successfully. */
 function transact<T>(
   mode: IDBTransactionMode,
   operation: (store: IDBObjectStore) => IDBRequest<T>,
@@ -95,34 +97,49 @@ function blobToDataUrl(blob: Blob): Promise<string> {
   });
 }
 
-const assetReferenceCache = new Map<string, string>();
+// Keep a bounded LRU cache so autosave does not repeatedly write the same
+// large data URL to IndexedDB, without retaining an unlimited number of images.
+const assetReferenceCache = new Map<string, CachedReference>();
+let cachedDataUrlChars = 0;
 
-async function fingerprint(value: string): Promise<string> {
-  if (!globalThis.crypto?.subtle) {
-    throw new Error("Secure local image storage is unavailable in this browser.");
+function getCachedReference(dataUrl: string, projectId: string) {
+  const cached = assetReferenceCache.get(dataUrl);
+  if (!cached || cached.projectId !== projectId) return null;
+
+  assetReferenceCache.delete(dataUrl);
+  assetReferenceCache.set(dataUrl, cached);
+  return cached.reference;
+}
+
+function rememberReference(
+  dataUrl: string,
+  projectId: string,
+  reference: string,
+) {
+  if (dataUrl.length > MAX_CACHED_DATA_URL_CHARS) return;
+
+  const previous = assetReferenceCache.get(dataUrl);
+  if (previous) {
+    cachedDataUrlChars -= dataUrl.length;
+    assetReferenceCache.delete(dataUrl);
   }
 
-  const digest = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(value),
-  );
+  while (cachedDataUrlChars + dataUrl.length > MAX_CACHED_DATA_URL_CHARS) {
+    const oldestDataUrl = assetReferenceCache.keys().next().value;
+    if (oldestDataUrl === undefined) break;
+    assetReferenceCache.delete(oldestDataUrl);
+    cachedDataUrlChars -= oldestDataUrl.length;
+  }
 
-  return Array.from(new Uint8Array(digest), (byte) =>
-    byte.toString(16).padStart(2, "0"),
-  ).join("");
+  assetReferenceCache.set(dataUrl, { projectId, reference });
+  cachedDataUrlChars += dataUrl.length;
 }
 
 async function storeDataUrl(projectId: string, dataUrl: string): Promise<string> {
-  const digest = await fingerprint(dataUrl);
-  const key = `${projectId}:${digest}`;
-  const cached = assetReferenceCache.get(key);
+  const cached = getCachedReference(dataUrl, projectId);
+  if (cached) return cached;
 
-  if (cached) {
-    assetReferenceCache.delete(key);
-    assetReferenceCache.set(key, cached);
-    return cached;
-  }
-
+  const key = `${projectId}:${crypto.randomUUID()}`;
   await transact("readwrite", (store) =>
     store.put({
       key,
@@ -132,13 +149,7 @@ async function storeDataUrl(projectId: string, dataUrl: string): Promise<string>
   );
 
   const reference = REF_PREFIX + encodeURIComponent(key);
-  assetReferenceCache.set(key, reference);
-
-  if (assetReferenceCache.size > MAX_CACHED_REFERENCES) {
-    const oldestKey = assetReferenceCache.keys().next().value;
-    if (oldestKey) assetReferenceCache.delete(oldestKey);
-  }
-
+  rememberReference(dataUrl, projectId, reference);
   return reference;
 }
 
@@ -157,8 +168,10 @@ async function resolveReference(reference: string): Promise<string> {
 
   if (!record?.dataUrl) return "";
 
-  const cachedReference = REF_PREFIX + encodeURIComponent(key);
-  assetReferenceCache.set(key, cachedReference);
+  const separator = key.indexOf(":");
+  const projectId = separator > 0 ? key.slice(0, separator) : "";
+  if (projectId) rememberReference(record.dataUrl, projectId, reference);
+
   return record.dataUrl;
 }
 
