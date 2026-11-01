@@ -21,7 +21,7 @@ The GrapesJS editor, autosave, previews, asset uploads, and publishing pipeline 
 3. Copy `.env.example` to `.env.local`.
 4. Add your Supabase project URL and anon/publishable key.
 5. Apply `supabase/migrations/0001_initial_schema.sql` in the Supabase SQL editor.
-6. In Supabase Auth settings, configure the local/site URL and redirect URL `http://localhost:3000/auth/callback`.
+6. For local development, set `NEXT_PUBLIC_SITE_URL=http://localhost:3000` and add `http://localhost:3000/auth/callback` to Supabase Auth redirect URLs. For production, set `NEXT_PUBLIC_SITE_URL=https://asnor-studio-mvp-asnor-ali.vercel.app` in Vercel and configure Supabase Auth **Site URL** to that production URL (not localhost). Add the production callback URL `https://asnor-studio-mvp-asnor-ali.vercel.app/auth/callback` to the Supabase redirect URL allow list.
 7. Run `npm run dev`.
 
 ## Environment variables
