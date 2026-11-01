@@ -40,6 +40,7 @@ begin
 end;
 $function$;
 
--- Defense in depth: anonymous users must not receive table privileges.
-revoke all on table public.projects from anon;
+-- Least privilege: RLS is the row boundary; SQL grants should still expose only CRUD.
+-- In particular, TRUNCATE bypasses RLS and must not be granted to app users.
+revoke all on table public.projects from anon, authenticated;
 grant select, insert, update, delete on table public.projects to authenticated;
