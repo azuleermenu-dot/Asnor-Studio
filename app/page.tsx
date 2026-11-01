@@ -13,8 +13,8 @@ const features = [
   },
   {
     number: "03",
-    title: "Publish with confidence",
-    description: "Preview every screen and publish when your site is ready.",
+    title: "Preview on every screen",
+    description: "Check your desktop, tablet, and mobile layouts before sharing your work.",
   },
 ];
 
@@ -64,7 +64,7 @@ export default function HomePage() {
                 <span className="size-2.5 rounded-full bg-zinc-700" />
               </div>
               <span className="text-[10px] text-zinc-500">Untitled website · Preview</span>
-              <span className="rounded-md bg-violet-400/15 px-2 py-1 text-[10px] text-violet-200">Publish ↗</span>
+              <span className="rounded-md bg-violet-400/15 px-2 py-1 text-[10px] text-violet-200">Preview ↗</span>
             </div>
 
             <div className="grid min-h-[330px] grid-cols-[88px_1fr] sm:grid-cols-[112px_1fr]">
