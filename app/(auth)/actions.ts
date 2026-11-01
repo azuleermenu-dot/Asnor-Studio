@@ -23,3 +23,9 @@ export async function verifyEmailCode(_state:EmailCodeState,formData:FormData):P
  catch{return{stage:"verify",email,error:"We couldn’t verify the code. Please try again."};}
  redirect("/dashboard");
 }
+export async function signInWithGoogle():Promise<void>{
+ const supabase=await createClient();
+ const {data,error}=await supabase.auth.signInWithOAuth({provider:"google",options:{redirectTo:"https://asnor-studio-mvp-asnor-ali.vercel.app/auth/callback"}});
+ if(error||!data.url)redirect("/login?error=google");
+ redirect(data.url);
+}
