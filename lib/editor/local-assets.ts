@@ -40,15 +40,6 @@ function transact<T>(
   }));
 }
 
-function dataUrlToBlob(dataUrl: string): Blob {
-  const [header, encoded] = dataUrl.split(",", 2);
-  const mime = header.match(/^data:([^;]+)/)?.[1] ?? "application/octet-stream";
-  const binary = atob(encoded ?? "");
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return new Blob([bytes], { type: mime });
-}
-
 function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -58,14 +49,19 @@ function blobToDataUrl(blob: Blob): Promise<string> {
   });
 }
 
+const assetReferenceCache = new Map<string, string>();
+
 async function storeDataUrl(projectId: string, dataUrl: string): Promise<string> {
+  const cacheKey = `${projectId}:${dataUrl}`;
+  const cached = assetReferenceCache.get(cacheKey);
+  if (cached) return cached;
   const key = `${projectId}:${crypto.randomUUID()}`;
   await transact("readwrite", (store) => store.put({
     key,
     dataUrl,
     updatedAt: Date.now(),
   } satisfies StoredAsset));
-  return REF_PREFIX + encodeURIComponent(key);
+  const reference = REF_PREFIX + encodeURIComponent(key);\n  assetReferenceCache.set(cacheKey, reference);\n  return reference;
 }
 
 async function resolveReference(reference: string): Promise<string> {
