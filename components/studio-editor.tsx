@@ -140,7 +140,15 @@ export default function StudioEditor({ projectId, initialData }: Props) {
     } finally { setUploading(false); }
   }
 
-  const togglePanel = (panel: Exclude<MobilePanel, null>) => setMobilePanel((current) => current === panel ? null : panel);\n\n  function togglePreview() {\n    const next = !preview;\n    if (next) editorRef.current?.runCommand("core:preview");\n    else editorRef.current?.stopCommand("core:preview");\n    setPreview(next);\n    setMobilePanel(null);\n  }
+  const togglePanel = (panel: Exclude<MobilePanel, null>) => setMobilePanel((current) => current === panel ? null : panel);
+
+  function togglePreview() {
+    const next = !preview;
+    if (next) editorRef.current?.runCommand("core:preview");
+    else editorRef.current?.stopCommand("core:preview");
+    setPreview(next);
+    setMobilePanel(null);
+  }
 
   return (
     <div className={`studio-shell ${preview ? "studio-preview-mode" : ""} ${mobilePanel ? "studio-panel-open" : ""}`}>
