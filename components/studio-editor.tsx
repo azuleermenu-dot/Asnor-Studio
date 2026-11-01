@@ -93,7 +93,6 @@ export default function StudioEditor({ projectId, initialData }: Props) {
       editorRef.current = editor;
       editor.on("component:selected", (...args) => {
         setSelectedComponent((args[0] as EditorComponent | undefined) ?? editor?.getSelected() ?? null);
-        setMobilePanel("design");
       });
       editor.on("component:deselected", () => setSelectedComponent(null));
       editor.on("component:remove", () => setSelectedComponent(null));
