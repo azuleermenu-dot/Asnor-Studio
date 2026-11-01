@@ -61,13 +61,17 @@ async function storeDataUrl(projectId: string, dataUrl: string): Promise<string>
     dataUrl,
     updatedAt: Date.now(),
   } satisfies StoredAsset));
-  const reference = REF_PREFIX + encodeURIComponent(key);\n  assetReferenceCache.set(cacheKey, reference);\n  return reference;
+  const reference = REF_PREFIX + encodeURIComponent(key);
+  assetReferenceCache.set(cacheKey, reference);
+  return reference;
 }
 
 async function resolveReference(reference: string): Promise<string> {
   const key = decodeURIComponent(reference.slice(REF_PREFIX.length));
   const record = await transact<StoredAsset | undefined>("readonly", (store) => store.get(key));
   if (!record?.dataUrl) return "";
+  const projectId = key.split(":", 1)[0];
+  assetReferenceCache.set(`${projectId}:${record.dataUrl}`, reference);
   return record.dataUrl;
 }
 
