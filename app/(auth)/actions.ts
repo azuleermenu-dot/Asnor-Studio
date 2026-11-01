@@ -1,7 +1,7 @@
 "use server";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-export type EmailCodeState={stage?:"verify";email?:string;error?:string;success?:string};
+export type EmailCodeState={stage?:"verify";email?:string;error?:string;success?:string;retryAfterSeconds?:number};
 // Compatibility type for the legacy AuthForm component still included in the build.
 export type AuthState = EmailCodeState;
 export async function sendEmailCode(_state:EmailCodeState,formData:FormData):Promise<EmailCodeState>{
@@ -11,7 +11,7 @@ export async function sendEmailCode(_state:EmailCodeState,formData:FormData):Pro
  try{
   const supabase=await createClient();
   const{error}=await supabase.auth.signInWithOtp({email,options:{shouldCreateUser:intent==="signup",emailRedirectTo:"https://asnor-studio-mvp-asnor-ali.vercel.app/auth/callback"}});
-  if(error){const m=error.message.toLowerCase();if(m.includes("rate")||m.includes("too many"))return{error:"Please wait a little before requesting another code."};if(intent==="login"&&(m.includes("not found")||m.includes("signups not allowed")))return{error:"No account was found for that email. Create an account first."};return{error:"We couldn’t send your code. Check the email and try again."};}
+  if(error){const m=error.message.toLowerCase();if(m.includes("rate")||m.includes("too many")||m.includes("security purposes")){const match=error.message.match(/(\\d+)\\s*(seconds?|secs?)/i);const retryAfterSeconds=match?Math.max(1,Number(match[1])):60;return{error:"Too many sign-in or sign-up requests. Try again in:",retryAfterSeconds};}if(intent==="login"&&(m.includes("not found")||m.includes("signups not allowed")))return{error:"No account was found for that email. Create an account first."};return{error:"We couldn’t send your code. Check the email and try again."};}
   return{stage:"verify",email,success:"We sent a sign-in email. Click its secure sign-in link, or enter the 6-digit code if shown. Check spam too."};
  }catch{return{error:"Email verification is temporarily unavailable. Please try again."};}
 }
