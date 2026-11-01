@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import "grapesjs/dist/css/grapes.min.css";
 import "./studio-editor.css";
 import { externalizeLocalImages, hydrateLocalImages, readImageFile } from "@/lib/editor/local-assets";
+import EditorDesignControls, { type EditorComponent } from "@/components/editor-design-controls";
 
 type Props = { projectId: string; initialData: unknown };
 type EditorApi = {
@@ -12,8 +13,9 @@ type EditorApi = {
   setDevice(name: string): void;
   addComponents(content: object | string): unknown;
   runCommand(command: string): void;
+  getSelected(): EditorComponent | null;
   destroy(): void;
-  on(event: string, callback: () => void): void;
+  on(event: string, callback: (...args: unknown[]) => void): void;
 };
 
 export default function StudioEditor({ projectId, initialData }: Props) {
@@ -24,6 +26,7 @@ export default function StudioEditor({ projectId, initialData }: Props) {
   const [status, setStatus] = useState("All changes saved");
   const [device, setDevice] = useState("Desktop");
   const [uploading, setUploading] = useState(false);
+  const [selectedComponent, setSelectedComponent] = useState<EditorComponent | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -139,6 +142,9 @@ export default function StudioEditor({ projectId, initialData }: Props) {
       }) as unknown as EditorApi;
 
       editorRef.current = editor;
+      editor.on("component:selected", (...args) => setSelectedComponent((args[0] as EditorComponent | undefined) ?? editor?.getSelected() ?? null));
+      editor.on("component:deselected", () => setSelectedComponent(null));
+      editor.on("component:remove", () => setSelectedComponent(null));
 
       if (initialData && typeof initialData === "object" && Object.keys(initialData as object).length > 0) {
         try {
@@ -165,6 +171,7 @@ export default function StudioEditor({ projectId, initialData }: Props) {
       editor?.destroy();
       editor = null;
       editorRef.current = null;
+      setSelectedComponent(null);
     };
   }, [projectId, initialData]);
 
@@ -215,6 +222,7 @@ export default function StudioEditor({ projectId, initialData }: Props) {
         />
         <p className="studio-local-note">Images stay in this browser on this device.</p>
         <div id="studio-blocks" />
+        <EditorDesignControls component={selectedComponent} />
       </aside>
       <section className="studio-workspace">
         <div className="studio-toolbar">
