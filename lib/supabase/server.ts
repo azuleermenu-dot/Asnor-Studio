@@ -28,11 +28,9 @@ export async function createClient() {
       setAll(items) {
         try {
           items.forEach(({ name, value, options }) => {
-            const {
-              maxAge: _supabaseMaxAge,
-              expires: _supabaseExpires,
-              ...cookieOptions
-            } = options ?? {};
+            const safeOptions = { ...(options ?? {}) };
+            delete safeOptions.maxAge;
+            delete safeOptions.expires;
 
             const lifetime =
               value === ""
@@ -42,7 +40,7 @@ export async function createClient() {
                   : {};
 
             store.set(name, value, {
-              ...cookieOptions,
+              ...safeOptions,
               ...lifetime,
             });
           });
