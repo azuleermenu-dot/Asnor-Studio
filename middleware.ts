@@ -22,10 +22,8 @@ export async function middleware(request: NextRequest) {
   const remember = preference?.value === "1";
   const authCookieNames = getAuthCookieNames(request);
 
-  // Supabase's SSR cookie storage intentionally gives refresh-token cookies
-  // a very long lifetime. The separate browser-session preference is the
-  // actual remember-me boundary. If it disappeared when the browser closed,
-  // remove the leftover auth-token cookies before any page or API can use them.
+  // Do not let an old, long-lived Supabase token outlive a browser-session
+  // preference cookie. When the preference expires, clear the stale tokens.
   if (!preference && authCookieNames.length > 0) {
     authCookieNames.forEach((name) => request.cookies.delete(name));
     response = NextResponse.next({ request });
@@ -43,9 +41,6 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // Refresh the session on the server and copy refreshed cookies to both the
-  // downstream request and response. Strip Supabase's long default max-age
-  // unless the user explicitly enabled "Keep me logged in".
   const supabase = createServerClient(url, key, {
     cookieOptions: {
       path: "/",
@@ -61,11 +56,9 @@ export async function middleware(request: NextRequest) {
         response = NextResponse.next({ request });
 
         items.forEach(({ name, value, options }) => {
-          const {
-            maxAge: _supabaseMaxAge,
-            expires: _supabaseExpires,
-            ...cookieOptions
-          } = options ?? {};
+          const safeOptions = { ...(options ?? {}) };
+          delete safeOptions.maxAge;
+          delete safeOptions.expires;
 
           const lifetime =
             value === ""
@@ -75,7 +68,7 @@ export async function middleware(request: NextRequest) {
                 : {};
 
           response.cookies.set(name, value, {
-            ...cookieOptions,
+            ...safeOptions,
             ...lifetime,
           });
         });
