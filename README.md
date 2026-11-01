@@ -28,7 +28,7 @@ This is not yet a production-ready website builder. The following core capabilit
 ## Local development
 
 1. Use Node.js 22.
-2. Install locked dependencies: `npm ci`.
+2. Install dependencies with `npm install`.
 3. Copy `.env.example` to `.env.local`.
 4. Add your Supabase project URL and anon/publishable key.
 5. Apply the SQL migrations in `supabase/migrations` in order. Migration 0003 hardens project ownership policies and the timestamp trigger.
