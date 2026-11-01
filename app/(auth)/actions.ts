@@ -2,6 +2,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 export type EmailCodeState={stage?:"verify";email?:string;error?:string;success?:string};
+// Compatibility type for the legacy AuthForm component still included in the build.
+export type AuthState = EmailCodeState;
 export async function sendEmailCode(_state:EmailCodeState,formData:FormData):Promise<EmailCodeState>{
  const email=String(formData.get("email")??"").trim().toLowerCase();
  const intent=String(formData.get("intent")??"login");
